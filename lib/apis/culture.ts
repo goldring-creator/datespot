@@ -4,7 +4,7 @@ export async function fetchCurrentExhibitions(): Promise<Partial<Place>[]> {
   const today = new Date().toISOString().slice(0, 10)
   try {
     const res = await fetch(
-      `http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?serviceKey=${process.env.CULTURE_API_KEY}&from=${today}&to=${today}&rows=10&place=서울&type=D`,
+      `https://www.culture.go.kr/openapi/rest/publicperformancedisplays/period?serviceKey=${process.env.CULTURE_API_KEY}&from=${today}&to=${today}&rows=10&place=서울&type=D`,
       { signal: AbortSignal.timeout(8000) }
     )
     if (!res.ok) return []

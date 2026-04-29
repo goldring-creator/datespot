@@ -44,7 +44,7 @@ export async function generateCourse(places: Place[], opts: PlannerOptions): Pro
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
+    max_tokens: 4096,
     system: '당신은 한국 데이트 코스 전문가입니다. 항상 유효한 JSON만 응답합니다.',
     messages: [{ role: 'user', content: prompt }],
   })

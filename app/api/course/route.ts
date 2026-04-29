@@ -23,7 +23,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '해당 지역에 저장된 장소가 없습니다' }, { status: 404 })
   }
 
-  const course = await generateCourse(places as Place[], opts)
+  let course
+  try {
+    course = await generateCourse(places as Place[], opts)
+  } catch (err) {
+    return NextResponse.json(
+      { error: '코스 생성 실패', detail: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    )
+  }
 
   for (let i = 0; i < course.places.length - 1; i++) {
     const from = course.places[i]

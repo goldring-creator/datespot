@@ -10,9 +10,9 @@
 }
 
 body {
-  background: #EFE4FF;
-  color: #2D1B4E;
-  font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: var(--color-brand-bg);
+  color: var(--color-brand-text);
+  font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
 }
 
 ::-webkit-scrollbar { width: 4px; }

@@ -19,12 +19,13 @@ export function TopNav() {
       <div className="flex gap-2">
         <Button
           variant="ghost"
+          aria-label="링크 추가"
           onClick={() => document.dispatchEvent(new CustomEvent('open-link-input'))}
         >
           📎 링크 추가
         </Button>
-        <Button variant="ghost">🔍 장소 검색</Button>
-        <Link href="/places"><Button>💜 저장소</Button></Link>
+        <Button variant="ghost" aria-label="장소 검색">🔍 장소 검색</Button>
+        <Link href="/places"><Button aria-label="장소 저장소">💜 저장소</Button></Link>
       </div>
     </nav>
   )

@@ -27,7 +27,7 @@ export function PlaceGrid({ places }: PlaceGridProps) {
             {place.description && <p className="text-xs leading-relaxed mb-3" style={{ color: '#5D407A' }}>{place.description}</p>}
             <div className="flex gap-1.5">
               {place.naver_url && (
-                <a href={place.naver_url} target="_blank" rel="noopener"
+                <a href={place.naver_url} target="_blank" rel="noopener noreferrer"
                    className="text-xs px-2 py-1 rounded-lg"
                    style={{ background: '#E8FFF2', border: '1px solid rgba(3,199,90,0.3)', color: '#047A38' }}>
                   🟢 지도

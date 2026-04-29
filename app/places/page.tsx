@@ -21,7 +21,8 @@ export default async function PlacesPage({
   if (region) query = query.contains('region', [region])
   if (category) query = query.eq('category', category)
 
-  const { data: places } = await query
+  const { data: places, error } = await query
+  if (error) console.error('places query error:', error.message)
 
   return (
     <div className="flex flex-col min-h-screen">

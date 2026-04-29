@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CoursePlace } from '@/lib/supabase/types'
 
 interface NaverMapProps {
@@ -16,38 +16,54 @@ export function NaverMap({ places, center }: NaverMapProps) {
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const polylineRef = useRef<any>(null)
+  const placesRef = useRef(places)
+  const centerRef = useRef(center)
+  const [mapReady, setMapReady] = useState(false)
+
+  placesRef.current = places
+  centerRef.current = center
 
   useEffect(() => {
+    if (window.naver?.maps) {
+      initMap()
+      return
+    }
     const script = document.createElement('script')
     script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`
-    script.onload = initMap
+    let mounted = true
+    script.onload = () => { if (mounted) initMap() }
     document.head.appendChild(script)
-    return () => { document.head.removeChild(script) }
-  }, [])
+    return () => {
+      mounted = false
+      if (document.head.contains(script)) document.head.removeChild(script)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (mapInstanceRef.current) renderPlaces()
-  }, [places])
+    if (mapReady) renderPlaces()
+  }, [places, mapReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function initMap() {
     if (!mapRef.current) return
+    const c = centerRef.current
     mapInstanceRef.current = new window.naver.maps.Map(mapRef.current, {
-      center: new window.naver.maps.LatLng(center?.lat ?? 37.5443, center?.lng ?? 127.0557),
+      center: new window.naver.maps.LatLng(c?.lat ?? 37.5443, c?.lng ?? 127.0557),
       zoom: 14,
       mapTypeId: window.naver.maps.MapTypeId.NORMAL,
     })
-    renderPlaces()
+    setMapReady(true)
   }
 
   function renderPlaces() {
     const map = mapInstanceRef.current
     if (!map || !window.naver) return
+    const currentPlaces = placesRef.current
 
     markersRef.current.forEach(m => m.setMap(null))
     markersRef.current = []
     polylineRef.current?.setMap(null)
 
-    const coords = places
+    const coords = currentPlaces
       .filter(p => p.lat && p.lng)
       .map((p, i) => {
         const pos = new window.naver.maps.LatLng(p.lat!, p.lng!)

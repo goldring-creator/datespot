@@ -41,7 +41,7 @@ export async function parseUrl(url: string): Promise<ParsedPlace | null> {
       return parseBlogUrl(url)
     }
     case 'google': {
-      const { parseGoogleMapsUrl } = await import('./naver')
+      const { parseGoogleMapsUrl } = await import('./google')
       return parseGoogleMapsUrl(url)
     }
     default: {

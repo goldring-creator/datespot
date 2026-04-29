@@ -11,7 +11,7 @@ export async function parseInstagramUrl(url: string): Promise<ParsedPlace | null
   const context = await browser.newContext()
 
   if (fs.existsSync(COOKIES_PATH)) {
-    const cookies = JSON.parse(fs.readFileSync(COOKIES_PATH, 'utf-8'))
+    const cookies = JSON.parse(await fs.promises.readFile(COOKIES_PATH, 'utf-8'))
     await context.addCookies(cookies)
   }
 

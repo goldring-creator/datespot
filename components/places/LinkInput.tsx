@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { detectSource } from '@/lib/parsers/router'
+import { detectSource, type ParsedPlace } from '@/lib/parsers/router'
 
 const SOURCE_LABELS: Record<string, string> = {
   naver: '🟢 네이버지도',
@@ -13,7 +13,7 @@ const SOURCE_LABELS: Record<string, string> = {
 }
 
 interface LinkInputProps {
-  onSuccess: (place: unknown) => void
+  onSuccess: (place: ParsedPlace) => void
 }
 
 export function LinkInput({ onSuccess }: LinkInputProps) {

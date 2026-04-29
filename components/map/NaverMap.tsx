@@ -24,19 +24,14 @@ export function NaverMap({ places, center }: NaverMapProps) {
   centerRef.current = center
 
   useEffect(() => {
-    if (window.naver?.maps) {
-      initMap()
-      return
-    }
-    const script = document.createElement('script')
-    script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`
     let mounted = true
-    script.onload = () => { if (mounted) initMap() }
-    document.head.appendChild(script)
-    return () => {
-      mounted = false
-      if (document.head.contains(script)) document.head.removeChild(script)
+    function tryInit() {
+      if (!mounted) return
+      if (window.naver?.maps) { initMap() }
+      else { setTimeout(tryInit, 100) }
     }
+    tryInit()
+    return () => { mounted = false }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

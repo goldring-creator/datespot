@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATESPOT — Pastel Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Pretendard', sans-serif; background: #FAF5FF; color: #2D1B4E; height: 100vh; overflow: hidden; }
+
+  /* Top nav */
+  .topnav {
+    height: 48px;
+    background: white;
+    border-bottom: 1px solid rgba(190,150,230,0.18);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+    box-shadow: 0 1px 8px rgba(180,120,220,0.07);
+  }
+  .logo {
+    font-size: 14px; font-weight: 800; letter-spacing: 2px;
+    background: linear-gradient(90deg,#C084D4,#E896B8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-actions { display: flex; gap: 8px; align-items: center; }
+  .nav-btn {
+    background: #F5EEFF; border: 1px solid rgba(190,140,225,0.3);
+    color: #A070C8; border-radius: 8px; padding: 5px 12px;
+    font-size: 11px; cursor: pointer; font-weight: 500;
+  }
+  .nav-btn.primary {
+    background: linear-gradient(90deg,#C084D4,#E896B8);
+    border: none; color: white; font-weight: 600;
+  }
+
+  /* Main layout */
+  .main { display: flex; height: calc(100vh - 48px); }
+
+  /* Map area */
+  .map-area {
+    flex: 1; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, #EDE0FF 0%, #F5E8FF 40%, #FFE8F4 100%);
+  }
+  .map-grid {
+    position: absolute; inset: 0; opacity: 0.18;
+    background-image:
+      repeating-linear-gradient(0deg, #C4A0DC 0, #C4A0DC 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, #C4A0DC 0, #C4A0DC 1px, transparent 1px, transparent 40px);
+  }
+  .map-road-h {
+    position: absolute; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.65);
+  }
+  .map-road-v {
+    position: absolute; width: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.65);
+  }
+  .route-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .pin { position: absolute; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  .pin-bubble {
+    background: linear-gradient(135deg,#C084D4,#E896B8);
+    border-radius: 50%; width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    box-shadow: 0 0 0 5px rgba(192,132,212,0.2), 0 4px 14px rgba(192,132,212,0.3);
+    position: relative; z-index: 2;
+  }
+  .pin-bubble.active {
+    width: 40px; height: 40px;
+    box-shadow: 0 0 0 7px rgba(192,132,212,0.25), 0 6px 18px rgba(192,132,212,0.35);
+  }
+  .pin-label {
+    background: white; border: 1px solid rgba(192,132,212,0.3);
+    border-radius: 8px; padding: 3px 8px;
+    font-size: 10px; color: #7B4FA0; font-weight: 600;
+    margin-top: 4px; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(192,132,212,0.15);
+  }
+  .pin-order {
+    position: absolute; top: -3px; right: -3px;
+    background: linear-gradient(135deg,#E896B8,#C084D4);
+    border-radius: 50%; width: 15px; height: 15px;
+    font-size: 8px; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center; z-index: 3;
+  }
+
+  .map-controls {
+    position: absolute; bottom: 20px; left: 20px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .map-ctrl-btn {
+    background: white; border: 1px solid rgba(192,132,212,0.25);
+    color: #A070C8; border-radius: 8px; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(192,132,212,0.12);
+  }
+  .region-chip {
+    position: absolute; top: 16px; left: 16px;
+    background: white; border: 1px solid rgba(192,132,212,0.3);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: #7B4FA0; font-weight: 600;
+    box-shadow: 0 2px 10px rgba(192,132,212,0.15);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* Right panel */
+  .right-panel {
+    width: 340px;
+    background: white;
+    border-left: 1px solid rgba(192,132,212,0.15);
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: -4px 0 20px rgba(192,132,212,0.08);
+  }
+
+  /* Planner */
+  .planner-section {
+    padding: 16px;
+    border-bottom: 1px solid rgba(192,132,212,0.12);
+    background: linear-gradient(160deg,#FDF8FF,#FFF0F8);
+  }
+  .section-title {
+    font-size: 11px; font-weight: 700; color: #B070CC;
+    letter-spacing: 1px; margin-bottom: 11px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .planner-row { display: flex; gap: 7px; margin-bottom: 7px; }
+  .planner-chip {
+    flex: 1;
+    background: white; border: 1px solid rgba(192,132,212,0.25);
+    border-radius: 10px; padding: 7px 10px;
+    font-size: 11px; color: #9060B8; cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+    box-shadow: 0 1px 4px rgba(192,132,212,0.08);
+  }
+  .planner-chip span.val { color: #2D1B4E; font-weight: 600; }
+  .ai-btn {
+    width: 100%;
+    background: linear-gradient(90deg,#C084D4,#E896B8);
+    border: none; border-radius: 10px; padding: 10px;
+    font-size: 12px; font-weight: 700; color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 6px;
+    box-shadow: 0 4px 14px rgba(192,132,212,0.35);
+  }
+
+  /* Course summary */
+  .course-summary {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(192,132,212,0.12);
+  }
+  .course-title { font-size: 13px; font-weight: 700; color: #2D1B4E; margin-bottom: 4px; }
+  .course-meta { font-size: 11px; color: #A080C0; display: flex; gap: 10px; }
+
+  /* Place list */
+  .place-list { flex: 1; overflow-y: auto; padding: 12px 14px; }
+  .place-list::-webkit-scrollbar { width: 3px; }
+  .place-list::-webkit-scrollbar-thumb { background: rgba(192,132,212,0.25); border-radius: 2px; }
+
+  .place-item {
+    background: #FAF5FF; border: 1px solid rgba(192,132,212,0.18);
+    border-radius: 12px; padding: 11px 12px; margin-bottom: 8px;
+    position: relative;
+  }
+  .place-item.active {
+    border-color: rgba(192,132,212,0.45);
+    background: linear-gradient(160deg,#FDF8FF,#FFF5FB);
+    box-shadow: 0 2px 12px rgba(192,132,212,0.12);
+  }
+  .place-num {
+    position: absolute; top: 11px; right: 11px;
+    background: linear-gradient(135deg,#C084D4,#E896B8);
+    border-radius: 50%; width: 20px; height: 20px;
+    font-size: 10px; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .place-category { font-size: 10px; color: #B070CC; font-weight: 600; margin-bottom: 2px; }
+  .place-name { font-size: 13px; font-weight: 700; color: #2D1B4E; margin-bottom: 2px; }
+  .place-addr { font-size: 10px; color: #B0A0C0; margin-bottom: 6px; }
+  .place-desc { font-size: 11px; color: #7060A0; line-height: 1.55; margin-bottom: 8px; }
+  .place-links { display: flex; gap: 6px; }
+  .place-link {
+    background: #F5EEFF; border: 1px solid rgba(192,132,212,0.25);
+    border-radius: 6px; padding: 4px 9px;
+    font-size: 10px; color: #9060B8; text-decoration: none;
+    display: flex; align-items: center; gap: 3px; font-weight: 500;
+  }
+  .place-link.naver { border-color: rgba(3,199,90,0.35); color: #059A45; background: #F0FFF6; }
+  .place-link.insta { border-color: rgba(232,150,184,0.4); color: #D0608A; background: #FFF0F6; }
+
+  .travel-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 4px 4px; margin-bottom: 6px;
+    font-size: 10px; color: #B0A0C8; font-weight: 500;
+  }
+  .travel-line { flex: 1; height: 1px; background: rgba(192,132,212,0.18); }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="logo">DATESPOT</div>
+  <div class="nav-actions">
+    <div class="nav-btn">📎 링크 추가</div>
+    <div class="nav-btn">🔍 장소 검색</div>
+    <div class="nav-btn primary">💜 저장소</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- MAP -->
+  <div class="map-area">
+    <div class="map-grid"></div>
+    <div class="map-road-h" style="top:38%;left:0;width:100%;"></div>
+    <div class="map-road-h" style="top:63%;left:0;width:62%;"></div>
+    <div class="map-road-v" style="left:34%;top:0;height:100%;"></div>
+    <div class="map-road-v" style="left:60%;top:0;height:56%;"></div>
+
+    <svg class="route-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#C084D4;stop-opacity:0.7"/>
+          <stop offset="100%" style="stop-color:#E896B8;stop-opacity:0.7"/>
+        </linearGradient>
+      </defs>
+      <path d="M 220 200 Q 290 260 370 245 Q 450 228 510 315"
+            stroke="url(#rg)" stroke-width="3.5" fill="none"
+            stroke-dasharray="7 5"/>
+    </svg>
+
+    <div class="pin" style="left:192px;top:172px;">
+      <div class="pin-bubble active">☕<div class="pin-order">1</div></div>
+      <div class="pin-label">앤트러사이트</div>
+    </div>
+    <div class="pin" style="left:342px;top:210px;">
+      <div class="pin-bubble">🍝<div class="pin-order">2</div></div>
+      <div class="pin-label">오스테리아 꼬또</div>
+    </div>
+    <div class="pin" style="left:480px;top:284px;">
+      <div class="pin-bubble">🎨<div class="pin-order">3</div></div>
+      <div class="pin-label">대림미술관</div>
+    </div>
+
+    <div class="region-chip">📍 성수 · 한남</div>
+    <div class="map-controls">
+      <div class="map-ctrl-btn">+</div>
+      <div class="map-ctrl-btn">−</div>
+      <div class="map-ctrl-btn">◎</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <div class="planner-section">
+      <div class="section-title">✨ 코스 플래너</div>
+      <div class="planner-row">
+        <div class="planner-chip">📅 <span class="val">토요일</span></div>
+        <div class="planner-chip">⏰ <span class="val">오후 2~8시</span></div>
+      </div>
+      <div class="planner-row">
+        <div class="planner-chip">📍 <span class="val">성수 · 한남</span></div>
+        <div class="planner-chip">🚇 <span class="val">대중교통</span></div>
+      </div>
+      <button class="ai-btn">✨ AI 코스 추천받기</button>
+    </div>
+
+    <div class="course-summary">
+      <div class="course-title">성수 × 한남 감성 데이트 💜</div>
+      <div class="course-meta">
+        <span>🗺 3곳</span>
+        <span>⏱ 약 5시간</span>
+        <span>🚇 지하철</span>
+      </div>
+    </div>
+
+    <div class="place-list">
+
+      <div class="place-item active">
+        <div class="place-num">1</div>
+        <div class="place-category">☕ 카페 · 오후 2:00</div>
+        <div class="place-name">앤트러사이트 성수</div>
+        <div class="place-addr">서울 성동구 성수이로7가길 11</div>
+        <div class="place-desc">성수동 대표 스페셜티 카페. 공장 개조한 독특한 인테리어로 사진 찍기 좋음.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+          <a class="place-link insta" href="#">📸 인스타</a>
+        </div>
+      </div>
+
+      <div class="travel-badge">
+        <div class="travel-line"></div>
+        🚇 지하철 18분
+        <div class="travel-line"></div>
+      </div>
+
+      <div class="place-item">
+        <div class="place-num">2</div>
+        <div class="place-category">🍝 식사 · 오후 4:30</div>
+        <div class="place-name">오스테리아 꼬또</div>
+        <div class="place-addr">서울 용산구 한남대로20길 33</div>
+        <div class="place-desc">한남동 인기 이탈리안. 파스타와 리조또가 맛있고 커플 분위기 딱.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+        </div>
+      </div>
+
+      <div class="travel-badge">
+        <div class="travel-line"></div>
+        🚶 도보 12분
+        <div class="travel-line"></div>
+      </div>
+
+      <div class="place-item">
+        <div class="place-num">3</div>
+        <div class="place-category">🎨 전시 · 오후 6:30</div>
+        <div class="place-name">대림미술관</div>
+        <div class="place-addr">서울 종로구 자하문로4길 21</div>
+        <div class="place-desc">현재 전시: 《빛의 화가들》 — 5월 20일까지. 조명 인터랙티브 전시로 사진 찍기 최고.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+          <a class="place-link insta" href="#">📸 인스타</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -9,12 +9,18 @@ export function extractNaverPlaceId(url: string): string | null {
 }
 
 export async function parseNaverUrl(url: string): Promise<ParsedPlace | null> {
-  const placeId = extractNaverPlaceId(url)
+  let resolvedUrl = url
+  if (url.includes('naver.me')) {
+    try {
+      const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(5000) })
+      resolvedUrl = r.url
+    } catch { return null }
+  }
+  const placeId = extractNaverPlaceId(resolvedUrl)
   if (!placeId) return null
 
-  // Naver Maps 모바일 장소 요약 API (place ID 직접 조회)
   const res = await fetch(
-    `https://map.naver.com/v5/api/sites/summary/${placeId}?lang=ko`,
+    `https://map.naver.com/p/api/place/summary/${placeId}?lang=ko`,
     {
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
@@ -28,16 +34,16 @@ export async function parseNaverUrl(url: string): Promise<ParsedPlace | null> {
   let data: any
   try { data = await res.json() } catch { return null }
 
-  const site = data.site ?? data
-  if (!site?.name) return null
+  const p = data?.data?.placeDetail
+  if (!p?.name) return null
 
   return {
-    name: site.name,
-    category: mapNaverCategory(site.categoryName ?? site.category ?? ''),
-    address: site.roadAddress ?? site.address ?? undefined,
-    lat: site.y ? parseFloat(site.y) : undefined,
-    lng: site.x ? parseFloat(site.x) : undefined,
-    naverUrl: url,
+    name: p.name,
+    category: mapNaverCategory(p.category?.category ?? p.businessType ?? ''),
+    address: p.address?.roadAddress ?? p.address?.address ?? undefined,
+    lat: p.coordinate?.latitude,
+    lng: p.coordinate?.longitude,
+    naverUrl: resolvedUrl,
     sourceUrl: url,
   }
 }

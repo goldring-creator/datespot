@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATESPOT — Layout Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Pretendard', sans-serif; background: #1A0530; color: white; height: 100vh; overflow: hidden; }
+
+  /* Top nav */
+  .topnav {
+    height: 48px;
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px;
+  }
+  .logo {
+    font-size: 14px; font-weight: 800; letter-spacing: 2px;
+    background: linear-gradient(90deg,#A855F7,#EC4899);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-actions { display: flex; gap: 10px; align-items: center; }
+  .nav-btn {
+    background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3);
+    color: #C084FC; border-radius: 8px; padding: 5px 12px; font-size: 11px; cursor: pointer;
+  }
+  .nav-btn.primary {
+    background: linear-gradient(90deg,#A855F7,#EC4899);
+    border: none; color: white; font-weight: 600;
+  }
+
+  /* Main layout */
+  .main { display: flex; height: calc(100vh - 48px); }
+
+  /* Map area */
+  .map-area {
+    flex: 1;
+    background: linear-gradient(135deg, #1E1040 0%, #2D1560 50%, #1A0D45 100%);
+    position: relative; overflow: hidden;
+  }
+  .map-grid {
+    position: absolute; inset: 0; opacity: 0.12;
+    background-image:
+      repeating-linear-gradient(0deg, #9B7FD4 0, #9B7FD4 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, #9B7FD4 0, #9B7FD4 1px, transparent 1px, transparent 40px);
+  }
+  /* Simulated roads */
+  .map-road-h {
+    position: absolute; height: 3px;
+    background: rgba(200,160,255,0.2); border-radius: 2px;
+  }
+  .map-road-v {
+    position: absolute; width: 3px;
+    background: rgba(200,160,255,0.2); border-radius: 2px;
+  }
+  /* Route line */
+  .route-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* Place pins */
+  .pin {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+  }
+  .pin-bubble {
+    background: linear-gradient(135deg,#A855F7,#EC4899);
+    border-radius: 50%; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; box-shadow: 0 0 0 4px rgba(168,85,247,0.25), 0 4px 12px rgba(0,0,0,0.3);
+    position: relative; z-index: 2;
+  }
+  .pin-bubble.active {
+    width: 38px; height: 38px;
+    box-shadow: 0 0 0 6px rgba(168,85,247,0.35), 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .pin-label {
+    background: rgba(26,5,48,0.85); border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 6px; padding: 2px 7px; font-size: 10px; color: #E8D5FF;
+    margin-top: 4px; white-space: nowrap; backdrop-filter: blur(6px);
+  }
+  .pin-order {
+    position: absolute; top: -4px; right: -4px;
+    background: #EC4899; border-radius: 50%;
+    width: 14px; height: 14px; font-size: 8px; font-weight: 700;
+    color: white; display: flex; align-items: center; justify-content: center;
+    z-index: 3;
+  }
+
+  /* Map controls */
+  .map-controls {
+    position: absolute; bottom: 20px; left: 20px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .map-ctrl-btn {
+    background: rgba(26,5,48,0.8); border: 1px solid rgba(168,85,247,0.3);
+    color: #C084FC; border-radius: 8px; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer; backdrop-filter: blur(8px);
+  }
+
+  /* Region chip */
+  .region-chip {
+    position: absolute; top: 16px; left: 16px;
+    background: rgba(26,5,48,0.8); border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: #E8D5FF; backdrop-filter: blur(8px);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* Right panel */
+  .right-panel {
+    width: 340px;
+    background: rgba(26,5,48,0.95);
+    border-left: 1px solid rgba(168,85,247,0.15);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Planner section */
+  .planner-section {
+    padding: 16px;
+    border-bottom: 1px solid rgba(168,85,247,0.12);
+  }
+  .section-title {
+    font-size: 11px; font-weight: 700; color: #A855F7;
+    letter-spacing: 1px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .planner-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .planner-chip {
+    flex: 1;
+    background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 10px; padding: 8px 10px;
+    font-size: 11px; color: #C084FC; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .planner-chip span.val { color: white; font-weight: 600; font-size: 11px; }
+  .ai-btn {
+    width: 100%;
+    background: linear-gradient(90deg,#A855F7,#EC4899);
+    border: none; border-radius: 10px; padding: 10px;
+    font-size: 12px; font-weight: 700; color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 4px;
+  }
+
+  /* Course summary */
+  .course-summary {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(168,85,247,0.12);
+  }
+  .course-title {
+    font-size: 14px; font-weight: 700; color: white; margin-bottom: 4px;
+  }
+  .course-meta {
+    font-size: 11px; color: #9B7FD4;
+    display: flex; gap: 10px;
+  }
+  .course-meta span { display: flex; align-items: center; gap: 3px; }
+
+  /* Place list */
+  .place-list {
+    flex: 1; overflow-y: auto; padding: 12px 16px;
+  }
+  .place-list::-webkit-scrollbar { width: 3px; }
+  .place-list::-webkit-scrollbar-track { background: transparent; }
+  .place-list::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 2px; }
+
+  .place-item {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(168,85,247,0.15);
+    border-radius: 12px; padding: 12px; margin-bottom: 8px;
+    position: relative;
+  }
+  .place-item.active {
+    border-color: rgba(168,85,247,0.5);
+    background: rgba(168,85,247,0.08);
+  }
+  .place-num {
+    position: absolute; top: 12px; right: 12px;
+    background: linear-gradient(135deg,#A855F7,#EC4899);
+    border-radius: 50%; width: 20px; height: 20px;
+    font-size: 10px; font-weight: 700; color: white;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .place-category {
+    font-size: 10px; color: #A855F7; font-weight: 600;
+    margin-bottom: 3px; display: flex; align-items: center; gap: 4px;
+  }
+  .place-name {
+    font-size: 13px; font-weight: 700; color: white; margin-bottom: 3px;
+  }
+  .place-addr { font-size: 10px; color: #7B6A9B; margin-bottom: 6px; }
+  .place-desc {
+    font-size: 11px; color: #C4A0F0; line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .place-links { display: flex; gap: 6px; }
+  .place-link {
+    background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 6px; padding: 4px 9px;
+    font-size: 10px; color: #C084FC; text-decoration: none;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .place-link.naver { border-color: rgba(3,199,90,0.4); color: #03C75A; background: rgba(3,199,90,0.08); }
+  .place-link.insta { border-color: rgba(236,72,153,0.4); color: #EC4899; background: rgba(236,72,153,0.08); }
+
+  /* Travel time badge */
+  .travel-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; margin: 0 0 8px 0;
+    font-size: 10px; color: #9B7FD4;
+  }
+  .travel-line { flex: 1; height: 1px; background: rgba(168,85,247,0.2); }
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<div class="topnav">
+  <div class="logo">DATESPOT</div>
+  <div class="nav-actions">
+    <div class="nav-btn">📎 링크 추가</div>
+    <div class="nav-btn">🔍 장소 검색</div>
+    <div class="nav-btn primary">💜 저장소</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- MAP -->
+  <div class="map-area">
+    <div class="map-grid"></div>
+
+    <!-- Simulated roads -->
+    <div class="map-road-h" style="top:38%;left:0;width:100%;"></div>
+    <div class="map-road-h" style="top:62%;left:0;width:65%;"></div>
+    <div class="map-road-v" style="left:35%;top:0;height:100%;"></div>
+    <div class="map-road-v" style="left:60%;top:0;height:55%;"></div>
+
+    <!-- Route SVG -->
+    <svg class="route-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#A855F7;stop-opacity:0.8"/>
+          <stop offset="100%" style="stop-color:#EC4899;stop-opacity:0.8"/>
+        </linearGradient>
+      </defs>
+      <path d="M 220 200 Q 280 260 360 240 Q 440 220 500 310"
+            stroke="url(#routeGrad)" stroke-width="3" fill="none"
+            stroke-dasharray="6 4" opacity="0.8"/>
+    </svg>
+
+    <!-- Pins -->
+    <div class="pin" style="left:190px;top:170px;">
+      <div class="pin-bubble active">☕
+        <div class="pin-order">1</div>
+      </div>
+      <div class="pin-label">앤트러사이트</div>
+    </div>
+    <div class="pin" style="left:330px;top:205px;">
+      <div class="pin-bubble">🍝
+        <div class="pin-order">2</div>
+      </div>
+      <div class="pin-label">파스타 맛집</div>
+    </div>
+    <div class="pin" style="left:470px;top:278px;">
+      <div class="pin-bubble">🎨
+        <div class="pin-order">3</div>
+      </div>
+      <div class="pin-label">대림미술관</div>
+    </div>
+
+    <!-- Region chip -->
+    <div class="region-chip">📍 <span>성수 · 한남</span></div>
+
+    <!-- Map controls -->
+    <div class="map-controls">
+      <div class="map-ctrl-btn">+</div>
+      <div class="map-ctrl-btn">−</div>
+      <div class="map-ctrl-btn">◎</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <!-- Planner -->
+    <div class="planner-section">
+      <div class="section-title">✨ 코스 플래너</div>
+      <div class="planner-row">
+        <div class="planner-chip">📅 <span class="val">토요일</span></div>
+        <div class="planner-chip">⏰ <span class="val">오후 2시~8시</span></div>
+      </div>
+      <div class="planner-row">
+        <div class="planner-chip">📍 <span class="val">성수 · 한남</span></div>
+        <div class="planner-chip">🚇 <span class="val">대중교통</span></div>
+      </div>
+      <button class="ai-btn">✨ AI 코스 추천받기</button>
+    </div>
+
+    <!-- Course summary -->
+    <div class="course-summary">
+      <div class="course-title">성수 × 한남 감성 데이트 💜</div>
+      <div class="course-meta">
+        <span>🗺 3곳</span>
+        <span>⏱ 약 5시간</span>
+        <span>🚇 지하철 이용</span>
+      </div>
+    </div>
+
+    <!-- Place list (scrollable) -->
+    <div class="place-list">
+
+      <!-- Place 1 -->
+      <div class="place-item active">
+        <div class="place-num">1</div>
+        <div class="place-category">☕ 카페 · 오후 2:00</div>
+        <div class="place-name">앤트러사이트 성수</div>
+        <div class="place-addr">서울 성동구 성수이로7가길 11</div>
+        <div class="place-desc">성수동 대표 스페셜티 카페. 공장 개조한 독특한 인테리어로 사진 찍기 좋음. 아메리카노 추천.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+          <a class="place-link insta" href="#">📸 인스타</a>
+        </div>
+      </div>
+
+      <!-- Travel badge -->
+      <div class="travel-badge">
+        <div class="travel-line"></div>
+        🚇 지하철 18분
+        <div class="travel-line"></div>
+      </div>
+
+      <!-- Place 2 -->
+      <div class="place-item">
+        <div class="place-num">2</div>
+        <div class="place-category">🍝 식사 · 오후 4:30</div>
+        <div class="place-name">오스테리아 꼬또</div>
+        <div class="place-addr">서울 용산구 한남대로20길 33</div>
+        <div class="place-desc">한남동 인기 이탈리안 레스토랑. 파스타와 리조또가 맛있고 분위기도 커플에게 딱.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+        </div>
+      </div>
+
+      <!-- Travel badge -->
+      <div class="travel-badge">
+        <div class="travel-line"></div>
+        🚶 도보 12분
+        <div class="travel-line"></div>
+      </div>
+
+      <!-- Place 3 -->
+      <div class="place-item">
+        <div class="place-num">3</div>
+        <div class="place-category">🎨 전시 · 오후 6:30</div>
+        <div class="place-name">대림미술관</div>
+        <div class="place-addr">서울 종로구 자하문로4길 21</div>
+        <div class="place-desc">현재 전시: 《빛의 화가들》 — 5월 20일까지. 조명 인터랙티브 전시로 사진 찍기 최고.</div>
+        <div class="place-links">
+          <a class="place-link naver" href="#">🟢 네이버지도</a>
+          <a class="place-link insta" href="#">📸 인스타</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

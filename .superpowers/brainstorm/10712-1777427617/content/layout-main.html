@@ -1,0 +1,91 @@
+<h2>메인 화면 레이아웃 선택</h2>
+<p class="subtitle">앱을 열었을 때 처음 보이는 화면 구조입니다.</p>
+
+<div class="cards">
+
+  <!-- Option A: Map-First -->
+  <div class="card" data-choice="map-first" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F8F0FF;padding:16px;min-height:220px;">
+      <div style="font-size:9px;font-weight:700;color:#A855F7;letter-spacing:1px;margin-bottom:8px;">DATESPOT</div>
+      <!-- Map area -->
+      <div style="background:linear-gradient(135deg,#E8D5FF 0%,#D4B8F0 100%);border-radius:12px;height:110px;position:relative;overflow:hidden;margin-bottom:8px;">
+        <div style="position:absolute;inset:0;opacity:0.3;background-image:repeating-linear-gradient(0deg,#9B7FD4 0,#9B7FD4 1px,transparent 1px,transparent 20px),repeating-linear-gradient(90deg,#9B7FD4 0,#9B7FD4 1px,transparent 1px,transparent 20px);"></div>
+        <div style="position:absolute;top:30px;left:40px;width:12px;height:12px;border-radius:50%;background:#A855F7;box-shadow:0 0 0 4px rgba(168,85,247,0.25);"></div>
+        <div style="position:absolute;top:50px;left:80px;width:12px;height:12px;border-radius:50%;background:#EC4899;box-shadow:0 0 0 4px rgba(236,72,153,0.25);"></div>
+        <div style="position:absolute;top:25px;left:110px;width:12px;height:12px;border-radius:50%;background:#A855F7;box-shadow:0 0 0 4px rgba(168,85,247,0.25);"></div>
+        <div style="position:absolute;bottom:8px;right:8px;background:white;border-radius:8px;padding:4px 8px;font-size:9px;color:#A855F7;font-weight:600;">+ 코스 짜기</div>
+      </div>
+      <!-- Bottom panel -->
+      <div style="background:white;border-radius:10px;padding:8px;box-shadow:0 2px 10px rgba(168,85,247,0.1);">
+        <div style="font-size:9px;color:#A855F7;font-weight:600;margin-bottom:4px;">📍 저장된 장소 3곳</div>
+        <div style="display:flex;gap:4px;">
+          <div style="flex:1;background:#F8F0FF;border-radius:6px;padding:4px;font-size:8px;color:#9B7FD4;text-align:center;">☕ 앤트러사이트</div>
+          <div style="flex:1;background:#F8F0FF;border-radius:6px;padding:4px;font-size:8px;color:#9B7FD4;text-align:center;">🍝 파스타집</div>
+          <div style="flex:1;background:#F8F0FF;border-radius:6px;padding:4px;font-size:8px;color:#9B7FD4;text-align:center;">🎨 갤러리</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · 지도 중심</h3>
+      <p>지도가 메인. 저장 장소가 핀으로 표시됨. 지도에서 코스를 시각적으로 확인하며 계획.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Planner-First -->
+  <div class="card" data-choice="planner-first" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(135deg,#2D1B69,#7B3FA8);padding:16px;min-height:220px;">
+      <div style="font-size:9px;font-weight:700;color:#E8D5FF;letter-spacing:1px;margin-bottom:10px;">DATESPOT</div>
+      <!-- Planner wizard -->
+      <div style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px;margin-bottom:8px;">
+        <div style="font-size:10px;color:#E8D5FF;font-weight:600;margin-bottom:8px;">새 데이트 코스 짜기</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:5px 8px;font-size:9px;color:white;">📅 이번 주 토요일</div>
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:5px 8px;font-size:9px;color:white;">⏰ 오후 2시~8시</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:5px 8px;font-size:9px;color:white;">📍 성수/한남</div>
+          <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:8px;padding:5px 8px;font-size:9px;color:white;">🚇 대중교통</div>
+        </div>
+        <div style="background:linear-gradient(90deg,#A855F7,#EC4899);border-radius:8px;padding:7px;font-size:10px;color:white;font-weight:600;text-align:center;">✨ AI 코스 추천받기</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:8px;padding:7px;font-size:9px;color:#C4A0F0;text-align:center;">최근 코스: 성수동 봄날 데이트 →</div>
+    </div>
+    <div class="card-body">
+      <h3>B · 플래너 중심 ⭐ 추천</h3>
+      <p>메인이 코스 계획 마법사. 요일·시간·지역·이동수단 설정 후 AI 추천. 직관적인 흐름.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Feed + Map Split -->
+  <div class="card" data-choice="feed-map" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#F8F0FF;padding:16px;min-height:220px;">
+      <div style="font-size:9px;font-weight:700;background:linear-gradient(90deg,#A855F7,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;margin-bottom:8px;">DATESPOT</div>
+      <!-- Tab bar -->
+      <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <div style="flex:1;background:linear-gradient(90deg,#A855F7,#EC4899);border-radius:8px;padding:5px;font-size:9px;color:white;font-weight:600;text-align:center;">🗺 지도</div>
+        <div style="flex:1;background:#F3E8FF;border-radius:8px;padding:5px;font-size:9px;color:#A855F7;text-align:center;">📋 저장소</div>
+        <div style="flex:1;background:#F3E8FF;border-radius:8px;padding:5px;font-size:9px;color:#A855F7;text-align:center;">✨ 추천</div>
+      </div>
+      <!-- Split view -->
+      <div style="display:flex;gap:6px;">
+        <div style="flex:1;background:linear-gradient(135deg,#E8D5FF,#D4B8F0);border-radius:10px;height:100px;position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;opacity:0.25;background-image:repeating-linear-gradient(0deg,#9B7FD4 0,#9B7FD4 1px,transparent 1px,transparent 16px),repeating-linear-gradient(90deg,#9B7FD4 0,#9B7FD4 1px,transparent 1px,transparent 16px);"></div>
+          <div style="position:absolute;top:25px;left:20px;width:10px;height:10px;border-radius:50%;background:#A855F7;"></div>
+          <div style="position:absolute;top:40px;left:50px;width:10px;height:10px;border-radius:50%;background:#EC4899;"></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+          <div style="background:white;border-radius:8px;padding:6px;font-size:8px;color:#9B7FD4;box-shadow:0 1px 6px rgba(168,85,247,0.1);">☕ 앤트러사이트<br><span style="color:#C084FC;font-size:7px;">성수동 · 카페</span></div>
+          <div style="background:white;border-radius:8px;padding:6px;font-size:8px;color:#9B7FD4;box-shadow:0 1px 6px rgba(168,85,247,0.1);">🍝 파스타 맛집<br><span style="color:#C084FC;font-size:7px;">한남동 · 식사</span></div>
+          <div style="background:white;border-radius:8px;padding:6px;font-size:8px;color:#9B7FD4;box-shadow:0 1px 6px rgba(168,85,247,0.1);">🎨 대림미술관<br><span style="color:#C084FC;font-size:7px;">통의동 · 전시</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · 지도 + 저장소 분리</h3>
+      <p>탭으로 지도 / 저장소 / 추천 분리. 저장된 장소 관리하기 편하고 지도도 큼직하게.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;font-size:12px;">💡 클릭하거나 터미널로 알려주세요.</p>

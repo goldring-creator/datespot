@@ -13,7 +13,7 @@ export interface ParsedPlace {
 
 export function detectSource(url: string): UrlSource {
   const u = url.toLowerCase()
-  if (u.includes('map.naver.com') || u.includes('naver.com/local')) return 'naver'
+  if (u.includes('map.naver.com') || u.includes('naver.com/local') || u.includes('naver.me')) return 'naver'
   if (u.includes('map.kakao.com') || u.includes('kko.to')) return 'kakao'
   if (u.includes('instagram.com')) return 'instagram'
   if (u.includes('blog.naver.com') || u.includes('tistory.com') || u.includes('brunch.co.kr')) return 'blog'

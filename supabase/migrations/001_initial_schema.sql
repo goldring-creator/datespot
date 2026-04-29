@@ -57,3 +57,14 @@ create policy "bookmarks_own" on bookmarks using (auth.uid() = user_id);
 -- courses: 본인만 + 공개 코스는 읽기 허용
 create policy "courses_own" on courses using (auth.uid() = user_id);
 create policy "courses_public_read" on courses for select using (is_public = true);
+
+-- indexes for performance
+create index idx_places_region on places using gin(region);
+create index idx_places_is_active on places(is_active);
+create index idx_bookmarks_user_id on bookmarks(user_id);
+create index idx_bookmarks_place_id on bookmarks(place_id);
+create index idx_courses_user_id on courses(user_id);
+
+-- places: 제보자가 본인 장소 수정/삭제 가능
+create policy "places_update_own" on places for update using (auth.uid() = submitted_by);
+create policy "places_delete_own" on places for delete using (auth.uid() = submitted_by);
